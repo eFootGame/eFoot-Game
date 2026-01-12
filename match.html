@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>المباراة</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f1a;
+  font-family:Arial;
+  color:white;
+}
+.top{
+  background:#12172a;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.container{
+  padding:20px;
+}
+button{
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+  background:#1e90ff;
+  border:none;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  border-radius:10px;
+}
+.result{
+  background:#12172a;
+  margin-top:20px;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div onclick="goHome()" style="cursor:pointer">⬅ رجوع</div>
+  <div>المباريات</div>
+</div>
+
+<div class="container">
+  <h3>اختر مستوى المباراة:</h3>
+  <button onclick="playMatch('easy')">سهل</button>
+  <button onclick="playMatch('medium')">متوسط</button>
+  <button onclick="playMatch('hard')">صعب</button>
+
+  <div class="result" id="result">النتيجة ستظهر هنا</div>
+</div>
+
+<script>
+firebase.auth().onAuthStateChanged(user=>{
+  if(!user) return window.location="index.html";
+
+  var userRef = firebase.database().ref("usersefoot/"+user.uid);
+
+  window.playMatch = function(level){
+    userRef.once("value").then(snap=>{
+      const data = snap.val();
+      const teamPower = data.teamPower;
+
+      // قوة الخصم عشوائية حسب المستوى
+      let enemyPower = 0;
+      let rewardCoins = 0;
+      let rewardGP = 0;
+
+      if(level === 'easy'){
+        enemyPower = 50 + Math.random()*20; // 50-70
+        rewardCoins = 0;
+        rewardGP = 10;
+      } else if(level === 'medium'){
+        enemyPower = 70 + Math.random()*20; // 70-90
+        rewardCoins = 1;
+        rewardGP = 30;
+      } else {
+        enemyPower = 100 + Math.random()*20; // 90-110
+        rewardCoins = 2;
+        rewardGP = 100;
+      }
+
+      // حساب النتيجة
+      const chance = teamPower / (teamPower + enemyPower);
+      let message = "";
+      if(Math.random() < chance){
+        message = "✅ WIN  " + rewardCoins + " :Coins  /  " + rewardGP + " :GP";
+        // تحديث Coins و GP
+        userRef.update({
+          coins: (data.coins || 0) + rewardCoins,
+          gp: (data.gp || 0) + rewardGP
+        });
+      } else if(Math.random() < 0.5){
+        message = "⚖️ تعادل! ربحت نصف المكافأة";
+        userRef.update({
+          coins: (data.coins || 0) + Math.floor(rewardCoins/2),
+          gp: (data.gp || 0) + Math.floor(rewardGP/2)
+        });
+      } else {
+        message = "❌ خسارة! لم تربح شيء";
+      }
+
+      document.getElementById("result").innerText = message;
+    });
+  }
+});
+
+function goHome(){
+  window.location = "home.html";
+}
+</script>
+
+</body>
+</html>

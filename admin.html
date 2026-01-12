@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>لوحة الأدمن</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f1a;
+  font-family:Arial;
+  color:white;
+}
+.container{
+  padding:20px;
+}
+input,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+}
+button{
+  background:#1e90ff;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>لوحة الأدمن</h2>
+  <input id="playerName" placeholder="اسم اللاعب">
+  <input id="playerRating" type="number" placeholder="تقييم اللاعب">
+  <input id="playerRarity" placeholder="نادرة (legend/epic/normal)">
+  <button onclick="addPlayer()">إضافة لاعب</button>
+
+  <hr>
+
+  <input id="targetUid" placeholder="UID المستخدم">
+  <input id="coinsAmount" type="number" placeholder="عدد Coins">
+  <input id="gpAmount" type="number" placeholder="عدد GP">
+  <button onclick="giveCoinsGP()">إعطاء Coins و GP</button>
+</div>
+
+<script>
+firebase.auth().onAuthStateChanged(user=>{
+  if(!user) return window.location="index.html";
+
+  // تأكد ان الادمن
+  firebase.database().ref("usersefoot/"+user.uid).once("value").then(snap=>{
+    if(!snap.val().isAdmin){
+      alert("غير مسموح لك بالدخول!");
+      window.location="home.html";
+    }
+  });
+});
+
+function addPlayer(){
+  const name = document.getElementById("playerName").value.trim();
+  const rating = parseInt(document.getElementById("playerRating").value);
+  const rarity = document.getElementById("playerRarity").value.trim();
+
+  if(!name || !rating || !rarity){ alert("اكمل جميع الخانات"); return; }
+
+  const playerId = name.toLowerCase() + '_' + Date.now();
+  firebase.database().ref("players/"+playerId).set({
+    name:name,
+    rating:rating,
+    rarity:rarity,
+    position:"ST"
+  }).then(()=> alert("تم إضافة اللاعب بنجاح ✅"));
+}
+
+function giveCoinsGP(){
+  const uid = document.getElementById("targetUid").value.trim();
+  const coins = parseInt(document.getElementById("coinsAmount").value);
+  const gp = parseInt(document.getElementById("gpAmount").value);
+
+  if(!uid){ alert("ادخل UID المستخدم"); return; }
+
+  const userRef = firebase.database().ref("usersefoot/"+uid);
+  userRef.once("value").then(snap=>{
+    if(!snap.exists()){ alert("UID غير موجود"); return; }
+
+    userRef.update({
+      coins:(snap.val().coins||0)+coins,
+      gp:(snap.val().gp||0)+gp
+    }).then(()=> alert("تم إعطاء Coins و GP بنجاح ✅"));
+  });
+}
+</script>
+
+</body>
+</html>

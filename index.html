@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>eFootball Game - Auth</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#0b0f1a,#111a33);
+  font-family:Arial;
+  color:white;
+}
+
+.card{
+  background:#12172a;
+  width:360px;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 0 30px rgba(0,0,0,0.4);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:15px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#1e90ff;
+  color:white;
+  font-size:15px;
+  cursor:pointer;
+}
+
+button:hover{
+  opacity:0.9;
+}
+
+.switch{
+  text-align:center;
+  margin-top:15px;
+  font-size:14px;
+  cursor:pointer;
+  color:#7fb8ff;
+}
+
+.hidden{
+  display:none;
+}
+
+.forgot{
+  text-align:right;
+  font-size:13px;
+  margin-top:8px;
+  cursor:pointer;
+  color:#aaa;
+}
+
+.remember{
+  display:flex;
+  align-items:center;
+  font-size:13px;
+  margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <h2>تسجيل الدخول</h2>
+
+    <input id="loginEmail" placeholder="البريد الإلكتروني">
+    <input id="loginPassword" type="password" placeholder="كلمة المرور">
+
+    <div class="remember">
+      <input type="checkbox" id="rememberMe" style="margin-left:6px;">
+      تذكرني
+    </div>
+
+    <div class="forgot" onclick="forgotPassword()">نسيت كلمة السر؟</div>
+
+    <button onclick="login()">دخول</button>
+    <div class="switch" onclick="showRegister()">إنشاء حساب جديد</div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerBox" class="hidden">
+    <h2>إنشاء حساب</h2>
+
+    <input id="regUsername" placeholder="اسم المستخدم">
+    <input id="regEmail" placeholder="البريد الإلكتروني">
+    <input id="regPassword" type="password" placeholder="كلمة المرور">
+
+    <button onclick="register()">تسجيل</button>
+    <div class="switch" onclick="showLogin()">لديك حساب؟ تسجيل دخول</div>
+  </div>
+
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
