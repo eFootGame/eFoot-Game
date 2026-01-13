@@ -368,8 +368,8 @@ firebase.auth().onAuthStateChanged(user=>{
   let total = 0;
   const probs = players.map(p => {
     let prob;
-    if(p.rating >= 115) prob = 1;   // أساطير نادرة جداً
-    else if(p.rating >= 102) prob = 3; // نجوم عالميين
+    if(p.rating >= 115) prob = 2;   // أساطير نادرة جداً
+    else if(p.rating >= 105) prob = 3; // نجوم عالميين
     else if(p.rating >= 97) prob = 7; // كبار اللاعبين
     else if(p.rating >= 90) prob = 15; // متوسطين
     else if(p.rating >= 80) prob = 25; // جيدين
@@ -509,3 +509,4 @@ firebase.auth().onAuthStateChanged(user=>{
 
 </body>
 </html>
+
