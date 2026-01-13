@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>eFoot Game</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+body{
+  margin:0;
+  background:#0b0f1a;
+  font-family:Arial;
+  color:white;
+}
+
+/* 🔝 Top Bar */
+.top{
+  background:#12172a;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.balance span{
+  display:inline-flex;
+  align-items:center;
+  margin-left:15px;
+  font-weight:bold;
+  font-size:16px;
+}
+.balance img{
+  display:inline-block;
+}
+.balance{
+  display:flex;
+  gap:10px;
+}
+.coin-box, .gp-box{
+  display:flex;
+  align-items:center;
+  background:#000000;      /* لون المربع */
+  border:1px solid #3a3f5a; /* إطار خفيف */
+  border-radius:8px;
+  padding:5px 10px;
+  font-weight:bold;
+  font-size:14px;
+  min-width:70px;
+  justify-content:center;
+  box-shadow:0 2px 5px rgba(0,0,0,0.3);
+  transition:0.2s;
+}
+.coin-box img, .gp-box img{
+  width:20px;
+  margin-right:5px;
+}
+
+/* 🧱 Main */
+.main{
+  padding:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+
+/* 🔲 Card */
+.card{
+  background:#12172a;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+  transition:.3s;
+}
+.card:hover{
+  background:#1b2140;
+}
+.card i{
+  font-size:30px;
+  margin-bottom:10px;
+  color:#1e90ff;
+}
+</style>
+</head>
+<body>
+
+<!-- 🔝 Top Bar -->
+<div class="top">
+  <div id="username">...</div>
+  <div class="balance">
+    <div class="coin-box">
+      <img src="https://assetsdelivery.eldorado.gg/v7/_assets_/predefined-offers/v8/183/eFootball%20%20100.png" alt="Coins">
+      <span id="coins">0</span>
+    </div>
+    <div class="gp-box">
+      <img src="gp.png" alt="GP">
+      <span id="gp">0</span>
+    </div>
+  </div>
+</div>
+
+<!-- 🧱 Main -->
+<div class="main">
+  <div class="grid">
+    <div class="card" onclick="go('squad.html')">
+      <i class="fas fa-users"></i>
+      <div>التشكيلة</div>
+    </div>
+
+    <div class="card" onclick="go('match.html')">
+      <i class="fas fa-futbol"></i>
+      <div>مباراة</div>
+    </div>
+
+    <div class="card" onclick="go('shop.html')">
+      <i class="fas fa-gift"></i>
+      <div>المتجر</div>
+    </div>
+
+    <div class="card" onclick="go('settings.html')">
+  <i class="fas fa-cog"></i>
+  <div>الإعدادات</div>
+</div>
+
+<div class="card" onclick="go('missions.html')">
+      <i class="fas fa-bullseye"></i>
+      <div>المهام</div>
+    </div>
+
+    <div class="card" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      <div>تسجيل خروج</div>
+    </div>
+  </div>
+</div>
+
+<script>
+firebase.auth().onAuthStateChanged(user=>{
+  if(!user) return window.location="index.html";
+
+  firebase.database().ref("usersefoot/"+user.uid)
+  .on("value", snap=>{
+    const data = snap.val();
+    username.innerText = data.username;
+    coins.innerText = data.coins;
+    gp.innerText = data.gp;
+  });
+});
+
+function go(page){
+  window.location = page;
+}
+
+function logout(){
+  firebase.auth().signOut().then(()=>{
+    window.location = "index.html";
+  });
+}
+</script>
+
+</body>
+</html>
