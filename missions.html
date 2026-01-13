@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>🎯 المهام - Quiz</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<style>
+body{
+ margin:0;
+ background:#0b0f1a;
+ font-family:Arial;
+ color:white;
+}
+.top{
+ background:#12172a;
+ padding:15px;
+ display:flex;
+ align-items:center;
+ gap:15px;
+}
+.container{
+ padding:20px;
+ max-width:800px;
+ margin:auto;
+}
+.question{
+ background:#12172a;
+ border-radius:20px;
+ padding:20px;
+ margin-bottom:20px;
+}
+.answers button{
+ display:block;
+ width:100%;
+ margin-top:10px;
+ padding:10px;
+ border:none;
+ border-radius:15px;
+ cursor:pointer;
+ background:#1e88e5;
+ color:white;
+ font-size:15px;
+}
+.answers button:disabled{
+ background:#333;
+ cursor:not-allowed;
+}
+.status{
+ margin-top:10px;
+ font-weight:bold;
+}
+.success{ color:#4caf50; }
+.fail{ color:#f44336; }
+</style>
+</head>
+
+<body>
+
+<div class="top">
+ <div onclick="history.back()" style="cursor:pointer">⬅ رجوع</div>
+ <h3>🎯 المهام (Quiz)</h3>
+</div>
+
+<div class="container" id="quiz"></div>
+
+<script>
+firebase.auth().onAuthStateChanged(user=>{
+ if(!user) return location="auth.html";
+ const uid=user.uid;
+ const ref=firebase.database().ref("usersefoot/"+uid);
+
+ const questions=[
+  {
+   q:"من هو أفضل لاعب في eFootball 2024؟",
+   a:["Mbappé","Messi","Haaland"],
+   c:0
+  },
+  {
+   q:"كم عدد اللاعبين في الملعب؟",
+   a:["9","10","11"],
+   c:2
+  },
+  {
+   q:"ما هو مركز CF؟",
+   a:["مدافع","وسط","مهاجم"],
+   c:2
+  },
+  {
+   q:"كم شوط في المباراة؟",
+   a:["1","2","3"],
+   c:1
+  },
+  {
+   q:"أي فريق يلعب له Bellingham؟",
+   a:["Barcelona","Real Madrid","PSG"],
+   c:1
+  },
+  {
+   q:"ما لون البطاقة الأسطورية؟",
+   a:["ذهبي","فضي","أزرق"],
+   c:0
+  },
+  {
+   q:"ما معنى GK؟",
+   a:["حارس","مهاجم","جناح"],
+   c:0
+  },
+  {
+   q:"كم مدة الشوط؟",
+   a:["45","30","60"],
+   c:0
+  },
+  {
+   q:"أي مركز هو AMF؟",
+   a:["وسط هجومي","مدافع","حارس"],
+   c:0
+  },
+  {
+   q:"كم لاعب في التشكيلة الأساسية؟",
+   a:["9","10","11"],
+   c:2
+  }
+ ];
+
+ const box=document.getElementById("quiz");
+
+ ref.child("quiz").once("value").then(snap=>{
+  const saved=snap.val()||{};
+  questions.forEach((q,i)=>{
+   const key="q"+(i+1);
+   const state=saved[key];
+
+   const div=document.createElement("div");
+   div.className="question";
+   div.innerHTML=`<h4>${i+1}. ${q.q}</h4>`;
+   const ans=document.createElement("div");
+   ans.className="answers";
+
+   q.a.forEach((txt,index)=>{
+    const b=document.createElement("button");
+    b.innerText=txt;
+    if(state!==undefined) b.disabled=true;
+
+    b.onclick=()=>{
+     checkAnswer(key,index,q.c,b,ans,div);
+    };
+    ans.appendChild(b);
+   });
+
+   div.appendChild(ans);
+
+   if(state===true)
+    div.innerHTML+=`<div class="status success">✔ ربحت 50 كوينز</div>`;
+   else if(state===false)
+    div.innerHTML+=`<div class="status fail">✖ إجابة خاطئة</div>`;
+
+   box.appendChild(div);
+  });
+ });
+ 
+ function checkAnswer(key,sel,correct,btn,ans,div){
+  Array.from(ans.children).forEach(b=>b.disabled=true);
+
+  if(sel===correct){
+   div.innerHTML+=`<div class="status success">✔ صحيح (+50)</div>`;
+   ref.child("quiz/"+key).set(true);
+   ref.child("coins").transaction(c=>(c||0)+50);
+  }else{
+   div.innerHTML+=`<div class="status fail">✖ خطأ (محاولة واحدة)</div>`;
+   ref.child("quiz/"+key).set(false);
+  }
+ }
+});
+</script>
+
+</body>
+</html>
